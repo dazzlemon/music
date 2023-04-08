@@ -5,6 +5,7 @@ all of the lines that have unique author will appear at the end of the list
 those with empty author/title will appear at the end
 """
 
+from itertools import groupby
 from more_itertools import partition
 
 INPUT_FILE = 'to_download3.log'
@@ -39,7 +40,19 @@ with open(INPUT_FILE, encoding='utf-8') as input_file:
         """
         return ' | '.join(record) + '\n'
 
+    grouped_non_unique = [
+		    list(g) for _, g
+				    in groupby(
+                sorted_records_with_non_unique_author + sorted_bad_records,
+                key=lambda r: r[1]
+            )
+		]
+
+    grouped_non_unique.sort(key=len, reverse=True)
+
     with open(OUTPUT_FILE, 'w+', encoding='utf-8') as output_file:
-        output_file.writelines(map(record_to_line, sorted_records_with_non_unique_author))
-        output_file.writelines(map(record_to_line, sorted_bad_records))
+        output_file.writelines(map(
+					record_to_line,
+					sum(grouped_non_unique, [])
+				))
         output_file.writelines(map(record_to_line, records_with_unique_author))
