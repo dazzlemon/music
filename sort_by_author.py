@@ -12,20 +12,15 @@ from more_itertools import partition
 lines = stdin.readlines()
 records = [ group.split('\n') for group in ''.join(lines).split('\n\n') if group ]
 
-
 records_with_unique_author, records_with_non_unique_author = partition(
   lambda r: len(list(filter(lambda other_r: other_r[1] == r[1], records))) > 1,
   records
 )
 
-sorted_records_with_non_unique_author = list(records_with_non_unique_author)
-sorted_records_with_non_unique_author.sort(key=lambda r: r[1])
-
-def record_to_line(record):
-    """
-    Util function to convert record to line
-    """
-    return ' | '.join(record)
+sorted_records_with_non_unique_author = sorted(
+  records_with_non_unique_author,
+  key=lambda r: r[1]
+)
 
 grouped_non_unique = [
     list(g) for _, g
@@ -34,11 +29,7 @@ grouped_non_unique = [
             key=lambda r: r[1]
         )
 ]
-
 grouped_non_unique.sort(key=len, reverse=True)
 
-for vid in sum(grouped_non_unique, []):
-    print(record_to_line(vid))
-
-for vid in records_with_unique_author:
-    print(record_to_line(vid))
+for vid in sum(grouped_non_unique, []) + list(records_with_unique_author):
+    print(' | '.join(vid))
