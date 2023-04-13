@@ -16,5 +16,6 @@ for yt_url in map(lambda u: u.strip(), stdin):
         print(yt_vid.author)
         print(yt_vid.title)
     except PytubeError:
+        # TODO: retry
         pass
     print()
