@@ -8,7 +8,6 @@ from pytube import YouTube
 from pytube.exceptions import PytubeError
 
 lines = stdin.readlines()
-print(len(lines))
 records = [ group.split('\n') for group in ''.join(lines).split('\n\n') if group ]
 
 for i, record in enumerate(records):
