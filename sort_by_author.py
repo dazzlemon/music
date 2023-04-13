@@ -5,54 +5,40 @@ all of the lines that have unique author will appear at the end of the list
 those with empty author/title will appear at the end
 """
 
+from sys import stdin
 from itertools import groupby
 from more_itertools import partition
 
-INPUT_FILE = 'to_download3.log'
-OUTPUT_FILE = 'to_download4.log'
+lines = stdin.readlines()
+records = [ group.split('\n') for group in ''.join(lines).split('\n\n') if group ]
 
-with open(INPUT_FILE, encoding='utf-8') as input_file:
-    lines = input_file.readlines()
-    records = map(lambda line: line.strip().split(' | '), lines)
 
-    bad_records, normal_records = partition(
-        lambda r: len(r) == 3,
-        records
-    )
+records_with_unique_author, records_with_non_unique_author = partition(
+  lambda r: len(list(filter(lambda other_r: other_r[1] == r[1], records))) > 1,
+  records
+)
 
-    normal_records_list = list(normal_records)
+sorted_records_with_non_unique_author = list(records_with_non_unique_author)
+sorted_records_with_non_unique_author.sort(key=lambda r: r[1])
 
-    records_with_unique_author, records_with_non_unique_author = partition(
-      lambda r: len(list(filter(lambda other_r: other_r[1] == r[1], normal_records_list))) > 1,
-      normal_records_list
-    )
+def record_to_line(record):
+    """
+    Util function to convert record to line
+    """
+    return ' | '.join(record)
 
-    sorted_records_with_non_unique_author = list(records_with_non_unique_author)
-    sorted_records_with_non_unique_author.sort(key=lambda r: r[1])
+grouped_non_unique = [
+    list(g) for _, g
+        in groupby(
+            sorted_records_with_non_unique_author,
+            key=lambda r: r[1]
+        )
+]
 
-    # some are still okay, just split poorly
-    sorted_bad_records = list(bad_records)
-    sorted_bad_records.sort(key=lambda r: r[1])
+grouped_non_unique.sort(key=len, reverse=True)
 
-    def record_to_line(record):
-        """
-        Util function to convert record to line
-        """
-        return ' | '.join(record) + '\n'
+for vid in sum(grouped_non_unique, []):
+    print(record_to_line(vid))
 
-    grouped_non_unique = [
-		    list(g) for _, g
-				    in groupby(
-                sorted_records_with_non_unique_author + sorted_bad_records,
-                key=lambda r: r[1]
-            )
-		]
-
-    grouped_non_unique.sort(key=len, reverse=True)
-
-    with open(OUTPUT_FILE, 'w+', encoding='utf-8') as output_file:
-        output_file.writelines(map(
-					record_to_line,
-					sum(grouped_non_unique, [])
-				))
-        output_file.writelines(map(record_to_line, records_with_unique_author))
+for vid in records_with_unique_author:
+    print(record_to_line(vid))
