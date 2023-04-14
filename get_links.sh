@@ -16,19 +16,18 @@ if [[ "$count" -eq 0 ]]; then
   exit 1
 fi
 
-my_jq_expression='
-    group_by(.uploader)
-  | map({
-      uploader: .[0].uploader,
-      videos: [ .[]
-              | "https://youtu.be/\(.id) \(.title)"
-              ]
-    })
-  | sort_by(-(.videos | length))
-  | .[]
-  | "\(.uploader)\n"
-  + (.videos | join("\n"))
-  + "\n"
+my_jq_expression='group_by(.uploader)
+                | map({
+                    uploader: .[0].uploader,
+                    videos: [ .[]
+                            | "https://youtu.be/\(.id) \(.title)"
+                            ]
+                  })
+                | sort_by(-(.videos | length))
+                | .[]
+                | "\(.uploader)\n"
+                  + (.videos | join("\n"))
+                  + "\n"
 '
 
 echo "$youtube_dl_output" | jq -s -r "$my_jq_expression"
