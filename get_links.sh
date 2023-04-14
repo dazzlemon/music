@@ -2,8 +2,8 @@
 
 set -e
 
-VERSION="1.0.0"
-YOUTUBE_DL_COMMAND="youtube-dl -j --flat-playlist"
+readonly VERSION="1.0.0"
+readonly YOUTUBE_DL_COMMAND="youtube-dl -j --flat-playlist"
 
 # Print usage instructions
 function usage {
@@ -37,7 +37,7 @@ esac
 
 # Fetch video links from the playlist
 youtube_playlist_link="$1"
-youtube_dl_output=$($YOUTUBE_DL_COMMAND "$youtube_playlist_link")
+youtube_dl_output="$($YOUTUBE_DL_COMMAND "$youtube_playlist_link")"
 count=$(echo "$youtube_dl_output" | grep -c '^{"_type": "url", "ie_key": "Youtube", "id": "')
 if [[ "$count" -eq 0 ]]; then
   echo "No video links found." >&2
