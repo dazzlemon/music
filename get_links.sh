@@ -16,6 +16,32 @@ function version {
   echo "$(basename "$0") version $VERSION"
 }
 
+# Fetch video links from the playlist
+function fetch_videos {
+  local playlist_link="$1"
+  local youtube_dl_output="$($YOUTUBE_DL_COMMAND "$playlist_link")"
+  echo "$youtube_dl_output"
+}
+
+# Group the video records by uploader
+function group_by_uploader {
+  local youtube_dl_output="$1"
+  local jq_expression='group_by(.uploader)
+                     | map({ uploader: .[0].uploader
+                           , videos: [ .[]
+                                     | "https://youtu.be/\(.id) \(.title)"
+                                     ]
+                           }
+                          )
+                     | sort_by(-(.videos | length))
+                     | .[]
+                     | "\(.uploader)\n"
+                       + (.videos | join("\n"))
+                       + "\n"
+                     '
+  echo "$youtube_dl_output" | jq -s -r "$jq_expression"
+}
+
 # Parse command-line arguments
 case "$1" in
   --version)
@@ -35,29 +61,11 @@ case "$1" in
     ;;
 esac
 
-# Fetch video links from the playlist
-youtube_playlist_link="$1"
-youtube_dl_output="$($YOUTUBE_DL_COMMAND "$youtube_playlist_link")"
-count=$(echo "$youtube_dl_output" | grep -c '^{"_type": "url", "ie_key": "Youtube", "id": "')
-if [[ "$count" -eq 0 ]]; then
-  echo "No video links found." >&2
-  exit 1
-fi
+function main {
+  local playlist_link="$1"
+  local youtube_dl_output="$(fetch_videos "$playlist_link")"
+  local grouped_output="$(group_by_uploader "$youtube_dl_output")"
+  printf "%s\n" "$grouped_output"
+}
 
-# Parse the output and group the videos by uploader
-my_jq_expression='group_by(.uploader)
-                | map({ uploader: .[0].uploader
-                      , videos: [ .[]
-                                | "https://youtu.be/\(.id) \(.title)"
-                                ]
-                      }
-                     )
-                | sort_by(-(.videos | length))
-                | .[]
-                | "\(.uploader)\n"
-                  + (.videos | join("\n"))
-                  + "\n"
-'
-
-# Print the formatted output
-printf '%s\n' "$youtube_dl_output" | jq -s -r "$my_jq_expression"
+main "$@"
