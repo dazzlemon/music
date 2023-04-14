@@ -1,3 +1,10 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 playlist_link" >&2
+  exit 1
+fi
+
 my_jq_expression='
   group_by(.uploader)
   | map({
@@ -16,8 +23,8 @@ my_jq_expression='
 youtube-dl \
   -j \
   --flat-playlist \
-  "https://www.youtube.com/playlist?list=PLmpL10r_giI1ipR20I16Qwa3lEfENtYPv" \
+  "$1" \
 | jq \
   -s \
-	-r \
+  -r \
   "$my_jq_expression"
