@@ -5,19 +5,13 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-jq_expression='group_by(.uploader)
-             | map({ uploader: .[0].uploader
-                   , videos: [ .[]
-                             | "https://youtu.be/\(.id) \(.title)"
-                             ]
-                   }
-                  )
-             | sort_by(-(.videos | length))
-             | .[]
-             | "\(.uploader)\n"
-               + (.videos | join("\n"))
-               + "\n"
-             '
-
-youtube-dl -j --flat-playlist "$1" \
-  | jq -s -r "$jq_expression" 
+youtube-dl -j --flat-playlist "$1" | jq -sr '
+  group_by(.uploader) |
+  map({
+    uploader: .[0].uploader,
+    videos: [ .[] | "https://youtu.be/\(.id) \(.title)" ]
+  }) |
+  sort_by(-(.videos | length)) |
+  .[] |
+  "\(.uploader)\n" + (.videos | join("\n")) + "\n"
+'
