@@ -16,7 +16,7 @@ function version {
   echo "$(basename "$0") version $VERSION"
 }
 
-# Fetch video links from the playlist
+# Fetch video records from the playlist
 function fetch_videos {
   local playlist_link="$1"
   local youtube_dl_output="$($YOUTUBE_DL_COMMAND "$playlist_link")"
