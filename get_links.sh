@@ -54,6 +54,7 @@ case "$1" in
     ;;
   *)
     if [[ $# -ne 1 ]]; then
+      exec 1>&2
       echo "Error: incorrect number of arguments"
       usage
       exit 1
