@@ -1,10 +1,10 @@
 module Main (main) where
 
 import System.IO.Utils (lineInteract)
-import Data.List (isPrefixOf)
-import Control.Monad (guard)
 import Data.List.Extra (sortOn)
 import Text.EditDistance (levenshteinDistance, defaultEditCosts)
+import Text.Regex.Posix ((=~))
+import Data.Maybe (mapMaybe)
 
 pairs :: [a] -> [(a, a)]
 pairs xs = [ (x, y) | (x, i) <- zip xs [0..]
@@ -12,11 +12,15 @@ pairs xs = [ (x, y) | (x, i) <- zip xs [0..]
                     , i < j
                     ]
 
+extractTitle :: String -> Maybe String
+extractTitle line = case line =~ pattern of
+                      [[_, title]] -> Just title
+                      _ -> Nothing
+  where pattern = "^https://youtu.be/[A-Za-z0-9]+ (.+)$"
 
 main :: IO ()
 main = lineInteract $ take 2000
-                    . map (unlines . (\(x, y) -> [x, y]))
+                    . map (\(x, y) -> unlines [x, y])
                     . sortOn (uncurry $ levenshteinDistance defaultEditCosts)
                     . pairs
-                    . map (drop 29)
-                    . filter ("https://youtu.be/" `isPrefixOf`)
+                    . mapMaybe extractTitle

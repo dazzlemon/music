@@ -24,6 +24,7 @@ dependencies:
 - extra
 - edit-distance
 - MissingH
+- regex-posix
 
 ghc-options:
 - -Wall
