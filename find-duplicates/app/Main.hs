@@ -1,17 +1,16 @@
 module Main (main) where
 
 import System.IO.Utils (lineInteract)
-import Data.List.Extra (sortOn)
+import Data.List.Extra (sortOn, tails)
 import Text.EditDistance (levenshteinDistance, defaultEditCosts)
 import Text.Regex.Posix ((=~))
 import Data.Maybe (mapMaybe)
 import GHC.Utils.Misc (last2)
 
-pairs :: [a] -> [[a]]
-pairs xs = [ [x, y] | (x, i) <- zip xs [0..]
-                    , (y, j) <- zip xs [0..]
-                    , i < j
-                    ]
+uniquePairs :: [a] -> [[a]]
+uniquePairs xs = [ [x, y] | (x:ys) <- tails xs
+                          ,  y     <- ys
+                          ]
 
 extractTitle :: String -> Maybe String
 extractTitle line = case line =~ "^https://youtu.be/[A-Za-z0-9]+ (.+)$" of
@@ -22,5 +21,5 @@ main :: IO ()
 main = lineInteract $ take 2000
                     . map unlines
                     . sortOn (uncurry (levenshteinDistance defaultEditCosts) . last2)
-                    . pairs
+                    . uniquePairs
                     . mapMaybe extractTitle
