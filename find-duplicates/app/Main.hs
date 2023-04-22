@@ -15,7 +15,7 @@ pairs xs = do
 
 main :: IO ()
 main = lineInteract $ take 2000
-                    . map (\(x, y) -> x ++ "\n" ++ y ++ "\n\n")
+                    . map (unlines . (\(x, y) -> [x, y]))
                     . sortOn (uncurry $ levenshteinDistance defaultEditCosts)
                     . pairs
                     . map (drop 29)
