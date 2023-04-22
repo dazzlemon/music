@@ -36,6 +36,7 @@ library
     , base >=4.7 && <5
     , edit-distance
     , extra
+    , ghc
     , regex-posix
   default-language: Haskell2010
 
@@ -52,6 +53,7 @@ executable find-duplicates-exe
     , edit-distance
     , extra
     , find-duplicates
+    , ghc
     , regex-posix
   default-language: Haskell2010
 
@@ -69,5 +71,6 @@ test-suite find-duplicates-test
     , edit-distance
     , extra
     , find-duplicates
+    , ghc
     , regex-posix
   default-language: Haskell2010
