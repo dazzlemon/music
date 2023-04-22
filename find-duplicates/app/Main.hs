@@ -7,11 +7,11 @@ import Data.List.Extra (sortOn)
 import Text.EditDistance (levenshteinDistance, defaultEditCosts)
 
 pairs :: [a] -> [(a, a)]
-pairs xs = do
-  (x, i) <- zip xs [0..]
-  (y, j) <- zip xs [0..]
-  guard (i < j)
-  return (x, y)
+pairs xs = [ (x, y) | (x, i) <- zip xs [0..]
+                    , (y, j) <- zip xs [0..]
+                    , i < j
+                    ]
+
 
 main :: IO ()
 main = lineInteract $ take 2000
