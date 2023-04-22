@@ -1,5 +1,6 @@
 module Main (main) where
 
+import System.IO.Utils (lineInteract)
 import Data.List (isPrefixOf)
 import Control.Monad (guard)
 import Data.List.Extra (sortOn)
@@ -13,14 +14,9 @@ pairs xs = do
   return (x, y)
 
 main :: IO ()
-main = getContents
-     >>= putStrLn
-       . unlines
-       . take 2000
-       . map (\(x, y) -> x ++ "\n" ++ y ++ "\n\n")
-       . sortOn (uncurry (levenshteinDistance defaultEditCosts))
-       . pairs
-       . map (drop 29)
-       . filter ("https://youtu.be/" `isPrefixOf`)
-       . lines
-
+main = lineInteract $ take 2000
+                    . map (\(x, y) -> x ++ "\n" ++ y ++ "\n\n")
+                    . sortOn (uncurry $ levenshteinDistance defaultEditCosts)
+                    . pairs
+                    . map (drop 29)
+                    . filter ("https://youtu.be/" `isPrefixOf`)
